@@ -3,6 +3,220 @@
 <head>
   <meta charset="UTF-8" />
   <title>DeepSight ANPR</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #020617);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 2.2rem;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 15px;
+      width: 320px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .card h3 {
+      margin-bottom: 15px;
+    }
+
+    input {
+      margin: 10px 0;
+      width: 100%;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: #22c55e;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 8px;
+      margin-top: 10px;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #16a34a;
+    }
+
+    .preview {
+      margin-top: 10px;
+      width: 100%;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-size: 18px;
+      color: #38bdf8;
+      min-height: 24px;
+    }
+
+    .loading {
+      color: #facc15;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<h1>🚗 DeepSight ANPR</h1>
+
+<div class="container">
+
+  <!-- IMAGE -->
+  <div class="card">
+    <h3>📷 Image Detection</h3>
+    <input type="file" id="imageInput" accept="image/*" onchange="previewImage()" />
+    
+    <img id="imagePreview" class="preview" />
+
+    <button onclick="uploadImage()">Detect Plate</button>
+    <div class="result" id="imageResult"></div>
+  </div>
+
+  <!-- VIDEO -->
+  <div class="card">
+    <h3>🎥 Video Detection</h3>
+    <input type="file" id="videoInput" accept="video/*" onchange="previewVideo()" />
+
+    <video id="videoPreview" class="preview" controls></video>
+
+    <button onclick="uploadVideo()">Detect Plate</button>
+    <div class="result" id="videoResult"></div>
+  </div>
+
+</div>
+
+<script>
+const API_URL = "https://shadowgard3n-deepsight.hf.space";
+
+// ================= PREVIEW =================
+function previewImage() {
+  const file = document.getElementById("imageInput").files[0];
+  const preview = document.getElementById("imagePreview");
+
+  if (file) {
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+  }
+}
+
+function previewVideo() {
+  const file = document.getElementById("videoInput").files[0];
+  const preview = document.getElementById("videoPreview");
+
+  if (file) {
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+  }
+}
+
+// ================= IMAGE =================
+async function uploadImage() {
+  const fileInput = document.getElementById("imageInput");
+  const resultBox = document.getElementById("imageResult");
+
+  if (!fileInput.files.length) {
+    resultBox.innerText = "⚠️ Select an image first";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  resultBox.innerHTML = "<span class='loading'>⏳ Processing...</span>";
+
+  try {
+    const res = await fetch(`${API_URL}/predict-image`, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.data && data.data.length > 0) {
+      resultBox.innerText = "✅ " + data.data.map(p => p.text).join(", ");
+    } else {
+      resultBox.innerText = "❌ No plate detected";
+    }
+
+  } catch (err) {
+    resultBox.innerText = "❌ API error";
+    console.error(err);
+  }
+}
+
+// ================= VIDEO =================
+async function uploadVideo() {
+  const fileInput = document.getElementById("videoInput");
+  const resultBox = document.getElementById("videoResult");
+
+  if (!fileInput.files.length) {
+    resultBox.innerText = "⚠️ Select a video first";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  resultBox.innerHTML = "<span class='loading'>⏳ Processing video...</span>";
+
+  try {
+    const res = await fetch(`${API_URL}/predict-video`, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.plates && data.plates.length > 0) {
+      resultBox.innerText = "✅ " + data.plates.join(", ");
+    } else {
+      resultBox.innerText = "❌ No plate detected";
+    }
+
+  } catch (err) {
+    resultBox.innerText = "❌ API error";
+    console.error(err);
+  }
+}
+</script>
+
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DeepSight ANPR</title>
   <style>
     body {
       font-family: Arial;
@@ -49,7 +263,6 @@
 
   <h1>🚗 DeepSight ANPR</h1>
 
-  <!-- IMAGE UPLOAD -->
   <div class="box">
     <h3>Upload Image</h3>
     <input type="file" id="imageInput" accept="image/*" />
@@ -58,7 +271,6 @@
     <div class="result" id="imageResult"></div>
   </div>
 
-  <!-- VIDEO UPLOAD -->
   <div class="box">
     <h3>Upload Video</h3>
     <input type="file" id="videoInput" accept="video/*" />
@@ -142,4 +354,4 @@ async function uploadVideo() {
 </script>
 
 </body>
-</html>
+</html> -->
