@@ -1,0 +1,17 @@
+# data.yaml
+path: /content/drive/MyDrive/DeepSight/train_set  # <--- Updated Colab Drive Path
+train: images      
+val: images        
+
+# Classes
+nc: 1
+names: ['license_plate']
+
+# # data.yaml
+# path: ./train_set  
+# train: images      
+# val: images        
+
+# # Classes
+# nc: 1                       
+# names: ['license_plate']    
