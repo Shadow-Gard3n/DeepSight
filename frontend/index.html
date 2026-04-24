@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DeepSight ANPR</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px auto;
+      width: 300px;
+    }
+
+    input {
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #22c55e;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🚗 DeepSight ANPR</h1>
+
+  <!-- IMAGE UPLOAD -->
+  <div class="box">
+    <h3>Upload Image</h3>
+    <input type="file" id="imageInput" accept="image/*" />
+    <br />
+    <button onclick="uploadImage()">Detect Plate</button>
+    <div class="result" id="imageResult"></div>
+  </div>
+
+  <!-- VIDEO UPLOAD -->
+  <div class="box">
+    <h3>Upload Video</h3>
+    <input type="file" id="videoInput" accept="video/*" />
+    <br />
+    <button onclick="uploadVideo()">Detect Plate</button>
+    <div class="result" id="videoResult"></div>
+  </div>
+
+<script>
+const API_URL = "https://shadowgard3n-deepsight.hf.space";
+
+// ================= IMAGE =================
+async function uploadImage() {
+  const fileInput = document.getElementById("imageInput");
+  const resultBox = document.getElementById("imageResult");
+
+  if (!fileInput.files.length) {
+    resultBox.innerText = "⚠️ Select an image first";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  resultBox.innerText = "⏳ Processing...";
+
+  try {
+    const res = await fetch(`${API_URL}/predict-image`, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.data && data.data.length > 0) {
+      resultBox.innerText = data.data.map(p => p.text).join(", ");
+    } else {
+      resultBox.innerText = "❌ No plate detected";
+    }
+
+  } catch (err) {
+    resultBox.innerText = "❌ Error connecting to API";
+    console.error(err);
+  }
+}
+
+// ================= VIDEO =================
+async function uploadVideo() {
+  const fileInput = document.getElementById("videoInput");
+  const resultBox = document.getElementById("videoResult");
+
+  if (!fileInput.files.length) {
+    resultBox.innerText = "⚠️ Select a video first";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  resultBox.innerText = "⏳ Processing video...";
+
+  try {
+    const res = await fetch(`${API_URL}/predict-video`, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.plates && data.plates.length > 0) {
+      resultBox.innerText = data.plates.join(", ");
+    } else {
+      resultBox.innerText = "❌ No plate detected";
+    }
+
+  } catch (err) {
+    resultBox.innerText = "❌ Error connecting to API";
+    console.error(err);
+  }
+}
+</script>
+
+</body>
+</html>
