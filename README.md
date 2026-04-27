@@ -9,7 +9,7 @@ The project features a decoupled architecture with a FastAPI backend hosted on H
 ## 🔗 Live Links
 
 - **Frontend (UI):** [https://deep-sight-ashy.vercel.app/](https://deep-sight-ashy.vercel.app/)
-- **Backend API:** [https://shadowgard3n-deepsight.hf.space](https://shadowgard3n-deepsight.hf.space)
+- **Backend API:** [https://shadowgard3n-deepsight.hf.space/docs](https://shadowgard3n-deepsight.hf.space/docs)
 
 ---
 
@@ -74,19 +74,16 @@ The core of DeepSight is a custom-trained **YOLOv11 Nano** model, specifically o
 * **Batch Size:** 16
 * **Hardware:** NVIDIA Tesla T4 GPU
 * **Parameters:** 2,582,347
-* **Computational Cost:** 6.3 GFLOPs
 
 ### Final Evaluation Metrics (Validation Set)
 After 20 epochs, the model achieved exceptional accuracy, indicating highly reliable license plate detection:
 * **mAP@50 (Mean Average Precision):** 0.983 (98.3%)
 * **mAP@50-95:** 0.699 (69.9%)
-* **Precision:** 0.986 (98.6%)
-* **Recall:** 0.966 (96.6%)
+
 
 ### Inference Speed
-* **Pre-process:** ~0.1 ms per image
-* **Inference:** ~1.1 ms per image
-* **Post-process:** ~1.8 ms per image
+* **YOLO:** ~70 ms per image
+* **EasyOCR:** ~150 ms per image
 
 ---
 
